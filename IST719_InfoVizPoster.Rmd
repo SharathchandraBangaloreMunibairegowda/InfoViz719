@@ -1,0 +1,286 @@
+---
+title: "IST 719 Information Visualization Poster Code"
+author: "Sharathchandra BM"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Libraries Involved in developing the R scripts. 
+
+```{r}
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(rworldmap)
+library(tidyverse)
+library(treemapify)
+library(treemap)
+```
+Reading the file in .csv format. The file can be downloaded from IUCN website by specifing the years' of data needed.
+
+```{r}
+wild <- read.csv("C:/Users/Sharathchandra B M/Desktop/Syracuse_IM_2nd_Sem/IST719/Poster/WildLifeTrade2016-2017.csv", header = T, stringsAsFactors = F)
+wild[is.na(wild)] <- 0
+wild2 <- wild
+wild <- wild2
+```
+
+Renaming column names' to understand. Changing of values according to the IUCN Cites document.
+```{r}
+colnames(wild) <- c("Year","Appendix","Scientific Name","Class Name","Order Name","Family Name","Genus Name","Importer Country","Exporter Country","Origin Country","Imp Quantity","Exp Quantity","Sold Good Term","Units Traded","Purpose Of Trade","Source Of Trade")
+
+wild$`Purpose Of Trade` <- ifelse(wild$`Purpose Of Trade`=="B", "Breeding",
+                     ifelse( wild$`Purpose Of Trade`=="E", "Educational",
+                             ifelse ( wild$`Purpose Of Trade`=="G", "Garden",
+                                      ifelse( wild$`Purpose Of Trade`=="H", "Hunting",
+                                              ifelse ( wild$`Purpose Of Trade`=="L", "Law",
+                                                       ifelse ( wild$`Purpose Of Trade`=="M", "Medical",
+                                                                ifelse( wild$`Purpose Of Trade`=="R", "reintroduction to wild",
+                                                                        ifelse ( wild$`Purpose Of Trade`=="P", "Personal",
+                                                                                 ifelse ( wild$`Purpose Of Trade`=="Q", "Circus",
+                                                                                          ifelse( wild$`Purpose Of Trade`=="S", "Scientific",
+                                                                                                  ifelse ( wild$`Purpose Of Trade`=="T", "Commercial",
+                                                                                                           ifelse ( wild$`Purpose Of Trade`=="Z", "Zoo",
+                                                                                                                    "Unknown"))))))))))))
+
+wild$`Exporter Country` <- ifelse(wild$`Exporter Country` %in% c("CN", "HK"), "China",
+                         ifelse( wild$`Exporter Country`=="US", "USA",
+                                 ifelse ( wild$`Exporter Country`=="AE", "Unite Arab Emirates",
+                                          ifelse( wild$`Exporter Country`=="BE", "Belgium",
+                                                  ifelse ( wild$`Exporter Country`=="CZ", "Czech Republic",
+                                                           ifelse ( wild$`Exporter Country`=="NL", "Netherlands",
+                                                                    ifelse( wild$`Exporter Country`=="ID", "Indonesia",
+                                                                            ifelse ( wild$`Exporter Country`=="IT", "Italy",
+                                                                                     ifelse ( wild$`Exporter Country`=="SG", "Singerpore",
+                                                                                              ifelse( wild$`Exporter Country`=="MY", "Malaysia",
+                                                                                                      ifelse ( wild$`Exporter Country`=="JP", "Japan",
+                                                                                                               ifelse ( wild$`Exporter Country`=="MG", "Madagascar",
+                                                                                                                        ifelse ( wild$`Exporter Country`=="FR", "France",
+                                                                                                                                 ifelse ( wild$`Exporter Country`=="DE", "Germany",
+                                                                                                                                          ifelse ( wild$`Exporter Country`=="GB", "Britain",
+                                                                                                                                                   ifelse ( wild$`Exporter Country`=="PE", "Peru",
+                                                                                                                                                            ifelse ( wild$`Exporter Country`=="DE", "Germany",
+                                                                                                                                                                     ifelse ( wild$`Exporter Country`=="ES", "Spain",
+                                                                                                                                                                              ifelse ( wild$`Exporter Country`=="ZW", "Zimbabwe",
+                                                                                                                                                                                       ifelse ( wild$`Exporter Country`=="PH", "Philippines",
+                                                                                                                                                                                                ifelse ( wild$`Exporter Country`=="MC", "Monaco",
+                                                                                                                                                                                                         ifelse ( wild$`Exporter Country`=="IL", "Israel",
+                                                                                                                                                                                                                  ifelse ( wild$`Exporter Country`=="AR", "Argentina",
+                                                                                                                                                                                                                           ifelse ( wild$`Exporter Country`=="GT", "Guatemala",
+                                                                                                                                                                                                                                    ifelse ( wild$`Exporter Country`=="KW", "Kuwait",
+                                                                                                                                                                                                                                             ifelse ( wild$`Exporter Country`=="DK", "Denmark",
+                                                                                                                                                                                                                                                      ifelse ( wild$`Exporter Country`=="UY", "Uruguay",
+                                                                                                                                                                                                                                                               ifelse ( wild$`Exporter Country`=="GE", "Geogria",
+                                                                                                                                                                                                                                                                        ifelse ( wild$`Exporter Country`=="PL", "Poland",
+                                                                                                                                                                                                                                                                                 ifelse ( wild$`Exporter Country`=="TN", "Tunisia",
+                                                                                                                                                                                                                                                                                          ifelse ( wild$`Exporter Country`=="KE", "Kenya",
+                                                                                                                                                                                                                                                                                                   ifelse ( wild$`Exporter Country`=="NO", "Norway",
+                                                                                                                                                                                                                                                                                                            ifelse ( wild$`Exporter Country`=="UG", "Uganda",
+                                                                                                                                                                                                                                                                                                                     ifelse ( wild$`Exporter Country`=="MA", "Morocco",
+                                                                                                                                                                                                                                                                                                                              ifelse ( wild$`Exporter Country`=="BS", "Bahamas",
+                                                                                                                                                                                                                                                                                                                                       ifelse ( wild$`Exporter Country`=="NP", "Nepal",
+                                                                                                                                                                                                                                                                                                                                                ifelse ( wild$`Exporter Country`=="IN", "India",
+                                                                                                                                                                                                                                                                                                                                                         ifelse ( wild$`Exporter Country`=="NI", "Nicaragua",
+                                                                                                                                                                                                                                                                                                                                                                  ifelse ( wild$`Exporter Country`=="PY", "Paraguay",
+                                                                                                                                                                                                                                                                                                                                                                           ifelse ( wild$`Exporter Country`=="AM", "Armenia",
+                                                                                                                                                                                                                                                                                                                                                                                    ifelse ( wild$`Exporter Country`=="TH", "Thailand",
+                                                                                                                                                                                                                                                                                                                                                                                             ifelse ( wild$`Exporter Country`=="CA", "Canada",
+                                                                                                                                                                                                                                                                                                                                                                                                      ifelse ( wild$`Exporter Country`=="NG", "Nigeria",
+                                                                                                                                                                                                                                                                                                                                                                                                               ifelse ( wild$`Exporter Country`=="MX", "Mexico",
+                                                                                                                                                                                                                                                                                                                                                                                                                       ifelse ( wild$`Exporter Country`=="CM", "Cameroon",
+                                                                                                                                                                                                                                                                                                                                                                                                                                 ifelse ( wild$`Exporter Country`=="FJ", "Fiji",
+                                                                                                                                                                                                                                                                                                                                                                                                                                          ifelse ( wild$`Exporter Country`=="ZA", "South Africa",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                   ifelse ( wild$`Exporter Country`=="JM", "Jamaica",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            ifelse ( wild$`Exporter Country`=="AD", "Andorra",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     wild$`Exporter Country`)))))))))))))))))))))))))))))))))))))))))))))))))
+
+wild$`Importer Country` <- ifelse(wild$`Importer Country` %in% c("CN", "HK"), "China",
+                                                    ifelse( wild$`Importer Country`=="US", "USA",
+                                                            ifelse ( wild$`Importer Country`=="AE", "Unite Arab Emirates",
+                                                                     ifelse( wild$`Importer Country`=="BE", "Belgium",
+                                                                             ifelse ( wild$`Importer Country`=="CZ", "Czech Republic",
+                                                                                      ifelse ( wild$`Importer Country`=="NL", "Netherlands",
+                                                                                               ifelse( wild$`Importer Country`=="ID", "India",
+                                                                                                       ifelse ( wild$`Importer Country`=="IT", "Italy",
+                                                                                                                ifelse ( wild$`Importer Country`=="SG", "Singerpore",
+                                                                                                                         ifelse( wild$`Importer Country`=="MY", "Malaysia",
+                                                                                                                                 ifelse ( wild$`Importer Country`=="JP", "Japan",
+                                                                                                                                          ifelse ( wild$`Importer Country`=="MG", "Madagascar",
+                                                                                                                                                   ifelse ( wild$`Importer Country`=="FR", "France",
+                                                                                                                                                            ifelse ( wild$`Importer Country`=="DE", "Germany",
+                                                                                                                                                                     ifelse ( wild$`Importer Country`=="GB", "Britain",
+                                                                                                                                                                              ifelse ( wild$`Importer Country`=="PE", "Peru",
+                                                                                                                                                                                       ifelse ( wild$`Importer Country`=="DE", "Germany",
+                                                                                                                                                                                                ifelse ( wild$`Importer Country`=="ES", "Spain",
+                                                                                                                                                                                                         ifelse ( wild$`Importer Country`=="ZW", "Zimbabwe",
+                                                                                                                                                                                                                  ifelse ( wild$`Importer Country`=="PH", "Philippines",
+                                                                                                                                                                                                                           ifelse ( wild$`Importer Country`=="MC", "Monaco",
+                                                                                                                                                                                                                                    ifelse ( wild$Exporter=="IL", "Israel",
+                                                                                                                                                                                                                                             ifelse ( wild$`Importer Country`=="AR", "Argentina",
+                                                                                                                                                                                                                                                      ifelse ( wild$`Importer Country`=="GT", "Guatemala",
+                                                                                                                                                                                                                                                               ifelse ( wild$`Importer Country`=="KW", "Kuwait",
+                                                                                                                                                                                                                                                                        ifelse ( wild$`Importer Country`=="DK", "Denmark",
+                                                                                                                                                                                                                                                                                 ifelse ( wild$`Importer Country`=="UY", "Uruguay",
+                                                                                                                                                                                                                                                                                          ifelse ( wild$`Importer Country`=="GE", "Geogria",
+                                                                                                                                                                                                                                                                                                   ifelse ( wild$`Importer Country`=="PL", "Poland",
+                                                                                                                                                                                                                                                                                                            ifelse ( wild$`Importer Country`=="TN", "Tunisia",
+                                                                                                                                                                                                                                                                                                                     ifelse ( wild$`Importer Country`=="KE", "Kenya",
+                                                                                                                                                                                                                                                                                                                              ifelse ( wild$`Importer Country`=="NO", "Norway",
+                                                                                                                                                                                                                                                                                                                                       ifelse ( wild$`Importer Country`=="UG", "Uganda",
+                                                                                                                                                                                                                                                                                                                                                ifelse ( wild$`Importer Country`=="MA", "Morocco",
+                                                                                                                                                                                                                                                                                                                                                         ifelse ( wild$`Importer Country`=="BS", "Bahamas",
+                                                                                                                                                                                                                                                                                                                                                                  ifelse ( wild$`Importer Country`=="NP", "Nepal",
+                                                                                                                                                                                                                                                                                                                                                                           ifelse ( wild$`Importer Country`=="IN", "India",
+                                                                                                                                                                                                                                                                                                                                                                                    ifelse ( wild$`Importer Country`=="NI", "Nicaragua",
+                                                                                                                                                                                                                                                                                                                                                                                             ifelse ( wild$`Importer Country`=="PY", "Paraguay",
+                                                                                                                                                                                                                                                                                                                                                                                                      ifelse ( wild$`Importer Country`=="AM", "Armenia",
+                                                                                                                                                                                                                                                                                                                                                                                                               ifelse ( wild$`Importer Country`=="TH", "Thailand",
+                                                                                                                                                                                                                                                                                                                                                                                                                        ifelse ( wild$`Importer Country`=="CA", "Canada",
+                                                                                                                                                                                                                                                                                                                                                                                                                                 ifelse ( wild$`Importer Country`=="NG", "Nigeria",
+                                                                                                                                                                                                                                                                                                                                                                                                                                          ifelse ( wild$`Importer Country`=="MX", "Mexico",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                                                                                                                                                                                                                   ifelse ( wild$`Importer Country`=="CM", "Cameroon",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            ifelse ( wild$`Importer Country`=="FJ", "Fiji",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ifelse ( wild$`Importer Country`=="ZA", "South Africa",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ifelse ( wild$`Importer Country`=="JM", "Jamaica",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ifelse ( wild$`Importer Country`=="AD", "Andorra",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wild$`Importer Country`)))))))))))))))))))))))))))))))))))))))))))))))))
+
+wild$`Exp Quantity` <- ifelse(wild$`Units Traded` %in% c("kg", "L", "l"), wild$`Exp Quantity`*1000, wild$`Exp Quantity`)
+
+wild$`Imp Quantity` <- ifelse(wild$`Units Traded` %in% c("kg", "L", "l"), wild$`Imp Quantity`*1000, wild$`Imp Quantity`)
+```
+
+Which are the top 10 countries which export species?
+```{r}
+i1 <- filter(wild,  `Exp Quantity` >0 & !is.na(`Exporter Country`))
+icountry <- group_by(i1, `Exporter Country` )
+ic2 <- dplyr::summarise(icountry,  count=n(), add=sum(`Exp Quantity`, na.rm=TRUE))
+ic2 <- arrange(ic2, desc(add))
+ic20 <- ic2[1:10,]
+
+p1 <- ggplot(ic20, aes(x=reorder(`Exporter Country`,add),y=add))+
+  geom_bar(aes(y=add,fill=add), stat="identity")+scale_fill_gradient(low="skyblue", high="darkblue")+
+  labs(x="Top 10 countries involved in WildLife Export Trade", y="Exported Quantity",
+       title="Top 10 Countries involved in Wildlife Export Trade under supervision of CITES", subtitle = "China is the most involved country in Wildlife Export Trade. Most Developing countries in the world are high exporters in WildLife Trade.")+ theme(legend.position="none", axis.text.x = element_text(hjust = 1)) +
+  ylim(0,8000000000) + theme(panel.grid.major.y = element_line(color = "grey", size = 0.75, linetype = "dotted")) + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) +
+  theme(panel.background = element_rect(fill = "white"), axis.ticks = element_blank(), axis.text.y = element_text(color = "black", vjust = -1))
+p1
+```
+
+Top 10 Countries shown in worldmap.
+```{r}
+n <- joinCountryData2Map(ic2, joinCode="NAME", nameJoinColumn="Exporter Country")
+
+mapCountryData(n, nameColumnToPlot="add", mapTitle="World Map of Top 10 Countries exporting species" , colourPalette = "RdBu")
+```
+
+Which are the top 10 Countries importing species?
+```{r}
+e1 <- filter(wild,  `Imp Quantity` >0 & !is.na(`Importer Country`))
+ecountry <- group_by(e1, `Importer Country` )
+ec2 <- dplyr::summarise(ecountry, add=sum(`Imp Quantity`, na.rm=TRUE), count=n())
+ec2 <- arrange(ec2, desc(add))
+ec20 <- ec2[1:10,]
+
+p2 <- ggplot(ec20, aes(x=reorder(`Importer Country`,add),y=add))+
+  geom_bar(aes(y=add,fill=add), stat="identity")+scale_fill_gradient(low="lightgreen", high="darkgreen")+
+  labs(x="Top 10 countries involved in WildLife Import Trade", y="Imported Quantity",
+       title="Top 10 Countries involved in Wildlife Import Trade under supervision of CITES", subtitle="China is the most involved country in Wildlife Import Trade. We can see the most import trade comes from Asia, Western Europe and North America.")+ theme(legend.position="none", axis.text.x = element_text(hjust = 1)) +
+  ylim(0,16000000000) + theme(panel.grid.major.y = element_line(color = "grey", size = 0.75, linetype = "dotted")) + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) +
+  theme(panel.background = element_rect(fill = "white"), axis.ticks = element_blank(), axis.text.y = element_text(color = "black", vjust = -1))
+p2
+```
+
+Top 10 Importing Countries shown in the worldmap
+```{r}
+n <- joinCountryData2Map(ec2, joinCode="NAME", nameJoinColumn="Importer Country")
+mapCountryData(n, nameColumnToPlot="add", mapTitle="World Map of Top 10 Countries importing species" , colourPalette = "rainbow")
+```
+
+How are the goods of species consumed or used by humans?
+```{r}
+t1 <- filter(wild,!is.na(`Sold Good Term`))
+
+t1p <- group_by(t1, `Sold Good Term` )
+t2p <- dplyr::summarise(t1p,  count=n())
+t2p <- filter(t2p, count>300)
+t2p$`Sold Good Term` <- ifelse(t2p$`Sold Good Term` == "carvings","claws",
+                          ifelse(t2p$`Sold Good Term` == "roots","talons", t2p$`Sold Good Term`))
+sum(t2p$count)
+t2p$percent <- t2p$count/sum(t2p$count) * 100
+t2p$percent <- round(t2p$percent,2)
+
+t2p$label <- paste(t2p$`Sold Good Term`, t2p$percent, sep = "\n")
+t2p$label <- paste(t2p$label,"%")
+
+treemap(t2p, index="label", vSize="count", type="index", 
+        palette="Paired", title="WildLife Trade Term(Human Consumption) Treemap", fontsize.title=12, fontsize.labels = c(7,7))
+```
+
+What is the purpose of trade of species?
+```{r}
+t2 <- filter(wild,!is.na(`Purpose Of Trade`))
+
+t3p <- group_by(t2, `Purpose Of Trade` )
+t4p <- dplyr::summarise(t3p,  count=n())
+t4p <- filter(t4p, count>300)
+t4p$percent <- t4p$count/sum(t4p$count)*100
+t4p$percent <- round(t4p$percent,2)
+t4p$label <- paste(t4p$`Purpose Of Trade`,t4p$percent,sep="\n")
+t4p$label <- paste(t4p$label,"%")
+
+treemap(t4p, index="label", vSize="count", type="index", 
+        palette="Dark2", title="WildLife Purpose Of Trade Treemap", fontsize.title=12,fontsize.labels = 10)
+```
+
+Top 5 Animals imported.
+```{r}
+animalI <- wild[wild$`Imp Quantity`>20000000,]
+rownames(animalI) <- NULL
+animalIT <- animalI[-c(9:15,20:44,52:63,72:79),]
+rownames(animalIT) <- NULL
+animalIT <- animalIT[-c(2:5,7:10,12:17,19:25,27),]
+rownames(animalIT) <- NULL
+animalIT <- animalIT[order(-animalIT$`Imp Quantity`),]
+animalIT$`Scientific Name` <- ifelse(animalIT$`Scientific Name` == "Anguilla anguilla","European Eel",
+                                     ifelse(animalIT$`Scientific Name` == "Strombus gigas","Queen Conch",
+                                            ifelse(animalIT$`Scientific Name` == "Scleractinia spp.","Stony Coral",
+                                                   ifelse(animalIT$`Scientific Name` == "Crocodylus siamensis","Siamese Crocodile",
+                                                          ifelse(animalIT$`Scientific Name` == "Crocodylus niloticus","Nile Crocodile",animalIT$`Scientific Name`)))))
+
+
+
+
+
+ggplot(data = animalIT,aes(x=reorder(animalIT$`Scientific Name`,animalIT$`Imp Quantity`),y=animalIT$`Imp Quantity`)) + geom_bar(stat = "identity") + 
+  labs(x="Top 5 Wildlife Animals imported",y="Imported Quantity in kgs (1kg = 2.21 lbs)",title = "Top 5 Animals imported in the world",subtitle="European Eel, Queen Conch and Siamese Crocodile are listed in Red List of IUCN as critically endangered species.") + 
+  ylim(0,3000000000) + theme(panel.grid.major.y = element_line(color = "grey", size = 0.75, linetype = "dotted")) + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) +
+  theme(panel.background = element_rect(fill = "white"), axis.ticks = element_blank(), axis.text.y = element_text(color = "black", vjust = -1))
+
+```
+
+Top 5 animals exported
+```{r}
+animalO <- wild[wild$`Exp Quantity`>188500000,]
+rownames(animalO) <- NULL
+animalOT <- animalO[-c(2,12,13,16:19),]
+rownames(animalOT) <- NULL
+animalOT <- animalOT[-c(1:3,7,9:11),]
+rownames(animalOT) <- NULL
+animalOT <- animalOT[order(-animalOT$`Exp Quantity`),]
+animalOT$`Scientific Name` <- ifelse(animalOT$`Scientific Name` == "Anguilla anguilla","European Eel",
+                                     ifelse(animalOT$`Scientific Name` == "Acipenser baerii","Siberian sturgeon",
+                                            ifelse(animalOT$`Scientific Name` == "Strombus gigas","Queen Conch",
+                                                   ifelse(animalOT$`Scientific Name` == "Acipenser ruthenus","Sterlet",
+                                                          ifelse(animalOT$`Scientific Name` == "Acipenser gueldenstaedtii","Russian sturgeon",animalOT$`Scientific Name`)))))
+
+ggplot(data = animalOT,aes(x=reorder(animalOT$`Scientific Name`,animalOT$`Exp Quantity`),y=animalOT$`Exp Quantity`)) + geom_bar(stat = "identity") +
+  labs(x="Top 5 Wildlife Animals exported",y="Exported Quantity in kgs (1kg = 2.21 lbs)",title = "Top 5 Animals exported in the world",subtitle="All of the Fauna here are listed in Red List of IUCN as critically endangered species.") + 
+  ylim(0,3000000000) + theme(panel.grid.major.y = element_line(color = "grey", size = 0.75, linetype = "dotted")) + theme(panel.grid.major = element_blank()) + theme(panel.grid.minor = element_blank()) +
+  theme(panel.background = element_rect(fill = "white"), axis.ticks = element_blank(), axis.text.y = element_text(color = "black", vjust = -1))
+
+```
